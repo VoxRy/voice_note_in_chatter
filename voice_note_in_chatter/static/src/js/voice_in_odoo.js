@@ -17,37 +17,28 @@ var recorder, gumStream;
 registerInstancePatchModel('mail.composer_view', 'mail/static/src/models/composer_view/composer_view.js', {
     recordVoice: function() {
         //Check security of site
-        if (location.href.includes('https:')) {
+        if (location.href.includes('https:') || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
             /**
              * Asks for access to the user's microphone if not granted yet, then
              * starts recording.
              */
             var self = this;
+            const recordBtn = this.el && this.el.querySelector('#record_voice');
             if (recorder && recorder.state == "recording") {
                 recorder.stop();
                 gumStream.getAudioTracks()[0].stop();
-                if (this.el.children.length == 4) {
-                    this.el.children[2].children[1].children[0].children[1].children[1].style.color = "";
-                    this.el.children[2].children[1].children[0].children[1].children[1].style.background = "";
-                } else {
-                    this.el.children[1].children[1].children[0].children[1].children[1].style.color = "";
-                    this.el.children[1].children[1].children[0].children[1].children[1].style.background = "";
+                if (recordBtn) {
+                    recordBtn.style.color = "";
+                    recordBtn.style.background = "";
                 }
             } else {
-                if (this.el.children.length == 4) {
-                    this.el.children[2].children[1].children[0].children[1].children[1].style.color = "#008000";
-                    this.el.children[2].children[1].children[0].children[1].children[1].style.background = "#b5f1b5";
-                } else {
-                    this.el.children[1].children[1].children[0].children[1].children[1].style.color = "#008000";
-                    this.el.children[1].children[1].children[0].children[1].children[1].style.background = "#b5f1b5";
+                if (recordBtn) {
+                    recordBtn.style.color = "#008000";
+                    recordBtn.style.background = "#b5f1b5";
                 }
-                var audioElements = $('.o_attachment_audio');
                 //Pause Audio When Recording a new Audio
-                audioElements.each(function(index, element) {
-                    for (let i = 0; i < element.children.length; i++) {
-                        const childElement = element.children[i];
-                        childElement.pause()
-                    }
+                $('.o_attachment_audio audio').each(function() {
+                    this.pause();
                 });
                 navigator.mediaDevices.getUserMedia({
                     audio: true
